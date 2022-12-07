@@ -77,14 +77,14 @@ while running:
     #Inserting border boundries for X
     if playerX <= 0:
         playerX = 0
-    elif playerX >= 1180:
-        playerX = 1180
+    elif playerX >= 1148:
+        playerX = 1148
     
     #Inserting border boundries for Y
     if playerY <= 0:
         playerY = 0
-    elif playerY >= 656:
-        playerY = 656
+    elif playerY >= 624:
+        playerY = 624
 
     playerY += playerVelocityY
     playerX += playerVelocityX
