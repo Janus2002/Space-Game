@@ -88,17 +88,16 @@ def main():
        
         enemy.Y += enemy.VY
 
-        if enemy.Y <= 0:
+        if enemy.Y < 0:
             enemy.VY = 0.5
             enemy.X -= enemy.VX
         elif enemy.Y >= 654:
             enemy.VY = -0.5
             enemy.X -= enemy.VX
-        elif enemy.X <= 0 and enemy.Y <= 654:
+        elif enemy.X <= 0:
             enemy.VX = 0
             enemy.VY = 0
-            enemy.X = 0
-            enemy.Y = 654
+        
 
         SCREEN.blit(player.pImg, (player.X,player.Y))
         SCREEN.blit(enemy.eImg, (enemy.X,enemy.Y))
