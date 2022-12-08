@@ -1,7 +1,8 @@
-import math
+import random
 import pygame
 from player import Player
 from background import Background
+from enemy import Enemy
 
 #Initialize the program
 def main():
@@ -20,6 +21,9 @@ def main():
 
     #Player
     player = Player()
+
+    #Enemy
+    enemy = Enemy()
 
     #Background
     bg = Background()
@@ -79,9 +83,20 @@ def main():
 
         player.Y += player.VY
         player.X += player.VX
+    
+    #Enemy Movement
+       
+        enemy.Y += enemy.VY
+
+        if enemy.Y <= 0:
+            enemy.VY = 0.5
+            enemy.X -= enemy.VX
+        elif enemy.Y >= 654:
+            enemy.VY = -0.5
+            enemy.X -= enemy.VX
 
         SCREEN.blit(player.pImg, (player.X,player.Y))
-
+        SCREEN.blit(enemy.eImg, (enemy.X,enemy.Y))
         #Update display when there is a change
         pygame.display.update()
 
