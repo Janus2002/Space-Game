@@ -3,6 +3,7 @@ import pygame
 from player import Player
 from background import Background
 from enemy import Enemy
+from rocket import Rocket
 
 #Initialize the program
 def main():
@@ -24,6 +25,13 @@ def main():
 
     #Enemy
     enemy = Enemy()
+
+    #Rocekt
+    rocket = Rocket()
+    
+    def fire_rocket(x,y):
+        rocket.rstate = "fire"
+        SCREEN.blit(rocket.rImg, (x+16,y))
 
     #Background
     bg = Background()
@@ -61,6 +69,9 @@ def main():
 
                 if event.key == pygame.K_LEFT:
                     player.VY -= 0.5
+                    
+                # if event.key == pygame.K_SPACE:
+                #     fire_rocket(rocket.X,player.Y)
 
             #Waits until keyboard button is released to stop
             if event.type == pygame.KEYUP:
@@ -68,6 +79,10 @@ def main():
                     player.VY = 0
                 elif event.key == pygame.K_UP or event.key == pygame.K_DOWN:
                     player.VX = 0
+                elif event.key == pygame.K_SPACE:
+                    rocket.VX=0
+
+            
 
     #Inserting border boundries for X
         if player.X <= 0:
@@ -101,6 +116,7 @@ def main():
 
         SCREEN.blit(player.pImg, (player.X,player.Y))
         SCREEN.blit(enemy.eImg, (enemy.X,enemy.Y))
+        SCREEN.blit(rocket.rImg, (rocket.X,rocket.Y))
         #Update display when there is a change
         pygame.display.update()
 
