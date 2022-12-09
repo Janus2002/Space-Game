@@ -17,7 +17,7 @@ def main():
 
     #Title and Icon
     pygame.display.set_caption("Space Game")
-    icon = pygame.image.load("spaceship.png")
+    icon = pygame.image.load("Data/images/spaceship.png")
     pygame.display.set_icon(icon)
 
     #Player
@@ -28,10 +28,9 @@ def main():
 
     #Rocekt
     rocket = Rocket()
-    
-    def fire_rocket(x,y):
+    def fireRocket(x,y):
         rocket.rstate = "fire"
-        SCREEN.blit(rocket.rImg, (x+16,y))
+        SCREEN.blit(rocket.rImg, (x+96,y+34))
 
     #Background
     bg = Background()
@@ -59,19 +58,23 @@ def main():
             #Checks if a button the keboard was pressed
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_UP:
-                    player.VX += 0.5
+                    player.VX += 0.75
 
                 if event.key == pygame.K_DOWN:
-                    player.VX -= 0.5
+                    player.VX -= 0.75
 
                 if event.key == pygame.K_RIGHT:
-                    player.VY += 0.5
+                    player.VY += 0.75
 
                 if event.key == pygame.K_LEFT:
-                    player.VY -= 0.5
+                    player.VY -= 0.75
                     
-                # if event.key == pygame.K_SPACE:
-                #     fire_rocket(rocket.X,player.Y)
+                if event.key == pygame.K_SPACE:
+                    #Cannot fire spam
+                    if rocket.rstate == "ready":
+                        rocket.Y = player.Y
+                        rocket.X = player.X
+                        fireRocket(rocket.X, rocket.Y)
 
             #Waits until keyboard button is released to stop
             if event.type == pygame.KEYUP:
@@ -79,11 +82,7 @@ def main():
                     player.VY = 0
                 elif event.key == pygame.K_UP or event.key == pygame.K_DOWN:
                     player.VX = 0
-                elif event.key == pygame.K_SPACE:
-                    rocket.VX=0
-
             
-
     #Inserting border boundries for X
         if player.X <= 0:
             player.X = 0
@@ -100,23 +99,28 @@ def main():
         player.X += player.VX
     
     #Enemy Movement
-       
         enemy.Y += enemy.VY
 
         if enemy.Y < 0:
-            enemy.VY = 0.5
+            enemy.VY = 0.3
             enemy.X -= enemy.VX
         elif enemy.Y >= 654:
-            enemy.VY = -0.5
+            enemy.VY = -0.3
             enemy.X -= enemy.VX
         elif enemy.X <= 0:
             enemy.VX = 0
             enemy.VY = 0
-        
 
+        #Rocket Movement
+        if rocket.X >= 1280:
+            rocket.X = 0
+            rocket.rstate = "ready"
+        if rocket.rstate == "fire":
+            fireRocket(rocket.X,rocket.Y)
+            rocket.X += rocket.VX
+    
         SCREEN.blit(player.pImg, (player.X,player.Y))
         SCREEN.blit(enemy.eImg, (enemy.X,enemy.Y))
-        SCREEN.blit(rocket.rImg, (rocket.X,rocket.Y))
         #Update display when there is a change
         pygame.display.update()
 
