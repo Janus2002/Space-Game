@@ -1,4 +1,4 @@
-import random as rd, pygame
+import random as rd, pygame,sys
 from player import Player
 from background import Background
 from enemy import Enemy
@@ -6,14 +6,12 @@ from rocket import Rocket
 from score import Score
 from pygame import mixer
 
-Screen_x = 1280
-Screen_y = 720
+Screen_x, Screen_y = 1280,720
 #create the screen
 SCREEN = pygame.display.set_mode((Screen_x,Screen_y))
 
 #Setting the FPS
 FPS = 60
-
 
 #Initialize the program
 def main():
@@ -28,29 +26,41 @@ def main():
     mixer.music.load("Data/sounds/background.wav")
     mixer.music.play(-1)
 
+    #Start Screen
+    start = pygame.font.Font("Data/fonts/Cybersky.otf", 128)
+    press = pygame.font.Font("Data/fonts/DeathStar.ttf", 32)
+    def showStart():
+        text = start.render("SPACE GAME!", True, (255,255,255))
+        enter = press.render("PRESS 'S' BUTTON TO START",True, (255,255,255))
+        SCREEN.blit(text, (280,230))
+        SCREEN.blit(enter, (430,360))
+
     #Player
-    player = Player()
-    lives = pygame.font.Font(None, 32)
+    player = Player(80,328)
+    lives = pygame.font.Font("Data/fonts/RobotInvader.ttf", 22)
     def showLives(x,y):
-        text = font.render("Lives Left: "+str(player.lives), True, (255,255,255))
+        text = lives.render("Lives Left: "+str(player.lives), True, (255,255,255))
         SCREEN.blit(text, (x,y))
 
     #Score
     score = Score()
-    font = pygame.font.Font(None, 32)
+    font = pygame.font.Font("Data/fonts/RobotInvader.ttf", 22)
     def showScore(x,y):
         text = font.render("Score: "+str(score.score), True, (255,255,255))
         SCREEN.blit(text, (x, y))
 
     #Game over
-    over = pygame.font.Font(None, 128)
+    over = pygame.font.Font("Data/fonts/DeathStar.ttf", 96)
+    restart = pygame.font.Font("Data/fonts/DeathStar.ttf", 32)
     def game_over_text():
         text = over.render("GAME OVER", True, (255,255,255))
-        SCREEN.blit(text, (360,320))
+        SCREEN.blit(text, (330,280))
+        press = restart.render("PRESS 'R' TO RESTART", True, (255,255,255))
+        SCREEN.blit(press, (450,400))
 
     #Enemy
     enemy = Enemy()
-    numOfEnemies = 20
+    numOfEnemies = 30
     enemy.enemies(numOfEnemies)
 
     #Rocekt
@@ -63,15 +73,17 @@ def main():
     #Background
     bg = Background()
     scroll = 5
-    #running the window
-    running = True
-    alive = True
+    #running the windows
+    alive = False
+    start_screen = True
     clock = pygame.time.Clock()
-    while running:
+
+
+    while True:
         #Loop can only run 60 times within a second
         clock.tick(FPS)
     #Scrolling background
-        if alive:
+        if alive or start_screen:
             for i in range(0,bg.tiles):
                 SCREEN.blit(bg.bg,(i*bg.bgW +bg.scroll,0))
             
@@ -81,6 +93,10 @@ def main():
                 bg.scroll = 0
         else:
             SCREEN.blit(bg.bg,(0,0))
+
+        #Opens the start screen first
+        if start_screen:
+            showStart()
 
         #Increases speed of the game
         if score.score % 300 == 0  and score.score != 0:
@@ -93,7 +109,27 @@ def main():
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                running = False
+                sys.exit(0)
+            
+            #If s is pressed it starts the game
+            if start_screen:
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_s:
+                        start_screen = False
+                        alive = True
+            
+            #If the player died pressing R will restart the game
+            if not alive:
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_r:
+                        alive = True
+                        player.x = 80
+                        player.y= 328
+                        player.lives = 5
+                        score.score = 0
+                        for i in range(numOfEnemies):
+                            enemy.x[i] = rd.randint(720,1100)
+                            enemy.y[i] = rd.randint(0,654)
 
             #Checks if a button the keboard was pressed
             if alive:
@@ -176,7 +212,7 @@ def main():
                 killed = mixer.Sound("Data/sounds/invaderkilled.wav")
                 killed.play()
                 rocket.rstate = "ready"
-                enemy.x[i] = rd.randint(720,1100)
+                enemy.x[i] = rd.randint(600,1100)
                 enemy.y[i] = rd.randint(0,654)
                 rocket.rRect.x = -40
                 rocket.rRect.y = -40
@@ -198,8 +234,9 @@ def main():
                 player.vY = 0
                 player.vX = 0
                 game_over_text()
-
-            SCREEN.blit(enemy.eImg[i], (enemy.x[i],enemy.y[i]))
+            
+            if not start_screen:
+                SCREEN.blit(enemy.eImg[i], (enemy.x[i],enemy.y[i]))
 
         #Rocket Movement
         if rocket.x >= 1148:
@@ -212,10 +249,11 @@ def main():
             rocket.rRect.x = rocket.x + 96
             rocket.rRect.y = rocket.y + 34
 
-            
-        SCREEN.blit(player.pImg, (player.x,player.y))
-        showScore(score.x, score.y)
-        showLives(1120,16)
+
+        if not start_screen:    
+            SCREEN.blit(player.pImg, (player.x,player.y))
+            showScore(score.x, score.y)
+            showLives(1120,16)
        
         #Update display when there is a change
         pygame.display.update()

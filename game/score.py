@@ -1,5 +1,6 @@
 
 class Score:
-    score = 0
-    x = 16
-    y = 16
+    def __init__(self):
+        self.score = 0
+        self.x = 16
+        self.y = 16
