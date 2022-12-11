@@ -5,7 +5,7 @@ class Rocket:
     x = 0
     y = 0
     rRect = rImg.get_rect()
-    vX = 2
+    vX = 15
     vY = 0
     #Ready is the rocket not the on screen | "fire" rocket is fired onto the screen (moving)
     rstate = "ready"

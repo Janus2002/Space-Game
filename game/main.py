@@ -6,15 +6,18 @@ from rocket import Rocket
 from score import Score
 from pygame import mixer
 
+Screen_x = 1280
+Screen_y = 720
+#create the screen
+SCREEN = pygame.display.set_mode((Screen_x,Screen_y))
+
+#Setting the FPS
+FPS = 60
+
+
 #Initialize the program
 def main():
     pygame.init()
-
-    Screen_x = 1280
-    Screen_y = 720
-
-    #create the screen
-    SCREEN = pygame.display.set_mode((Screen_x,Screen_y))
 
     #Title and Icon
     pygame.display.set_caption("Space Game")
@@ -27,7 +30,10 @@ def main():
 
     #Player
     player = Player()
-    pSpeed = 0.75
+    lives = pygame.font.Font(None, 32)
+    def showLives(x,y):
+        text = font.render("Lives Left: "+str(player.lives), True, (255,255,255))
+        SCREEN.blit(text, (x,y))
 
     #Score
     score = Score()
@@ -42,10 +48,9 @@ def main():
         text = over.render("GAME OVER", True, (255,255,255))
         SCREEN.blit(text, (360,320))
 
-
     #Enemy
     enemy = Enemy()
-    numOfEnemies = 7 
+    numOfEnemies = 20
     enemy.enemies(numOfEnemies)
 
     #Rocekt
@@ -57,23 +62,34 @@ def main():
 
     #Background
     bg = Background()
-
+    scroll = 5
     #running the window
     running = True
     alive = True
+    clock = pygame.time.Clock()
     while running:
-
-        #RGB colours (RED,GREEN,BLUE)
-        SCREEN.fill((0,0,0))
-
+        #Loop can only run 60 times within a second
+        clock.tick(FPS)
     #Scrolling background
-        for i in range(0,bg.tiles):
-            SCREEN.blit(bg.bg,(i*bg.bgW +bg.scroll,0))
+        if alive:
+            for i in range(0,bg.tiles):
+                SCREEN.blit(bg.bg,(i*bg.bgW +bg.scroll,0))
             
-        bg.scroll -=0.5
+            bg.scroll -= scroll
+ 
+            if abs(bg.scroll) > bg.bgW:
+                bg.scroll = 0
+        else:
+            SCREEN.blit(bg.bg,(0,0))
 
-        if abs(bg.scroll) > bg.bgW:
-            bg.scroll = 0
+        #Increases speed of the game
+        if score.score % 300 == 0  and score.score != 0:
+            rocket.vX += 0.15  
+            enemy.speed += 0.25 
+            player.pSpeed += 0.05
+            score.score += 10
+            scroll += 1
+         
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -83,16 +99,16 @@ def main():
             if alive:
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_UP:
-                        player.vX += pSpeed
+                        player.vX += player.pSpeed
 
                     if event.key == pygame.K_DOWN:
-                        player.vX -= pSpeed
+                        player.vX -= player.pSpeed
 
                     if event.key == pygame.K_RIGHT:
-                        player.vY += pSpeed
+                        player.vY += player.pSpeed
 
                     if event.key == pygame.K_LEFT:
-                        player.vY -= pSpeed
+                        player.vY -= player.pSpeed
                     
                     if event.key == pygame.K_SPACE:
                     #Cannot fire spam
@@ -136,26 +152,31 @@ def main():
                     enemy.y[j] = -300
                     enemy.eRect[j].x = enemy.x[j]
                     enemy.eRect[j].y = enemy.y[j]
-                game_over_text()
-                break
+                player.lives -= 1
+                if player.lives <= 0:
+                    player.lives = 0
+                    player.vY = 0
+                    player.vX = 0
+                    alive = False
+                    game_over_text()
+                    break
 
             if alive:    
                 enemy.y[i] += enemy.vY[i]
                 enemy.eRect[i].x = enemy.x[i]
                 enemy.eRect[i].y = enemy.y[i]
-
                 if enemy.y[i] < 0:
-                    enemy.vY[i] = 0.5 
+                    enemy.vY[i] = enemy.speed
                     enemy.x[i] -= enemy.vX[i]
                 elif enemy.y[i] >= 654:
-                    enemy.vY[i] = -0.5
+                    enemy.vY[i] = -enemy.speed
                     enemy.x[i] -= enemy.vX[i]
             
             if rocket.rRect.colliderect(enemy.eRect[i]):
                 killed = mixer.Sound("Data/sounds/invaderkilled.wav")
                 killed.play()
                 rocket.rstate = "ready"
-                enemy.x[i] = rd.randint(640,1100)
+                enemy.x[i] = rd.randint(720,1100)
                 enemy.y[i] = rd.randint(0,654)
                 rocket.rRect.x = -40
                 rocket.rRect.y = -40
@@ -163,14 +184,17 @@ def main():
             
             #Player collision with enemy
             if player.pRect.colliderect(enemy.eRect[i]):
+                playerHit = mixer.Sound("Data/sounds/playerhit.wav")
+                playerHit.play()
                 enemy.x[i] = rd.randint(640,1100)
                 enemy.y[i] = rd.randint(0,654)
                 enemy.eRect[i].x = enemy.x[i]
                 enemy.eRect[i].y = enemy.y[i]
                 player.lives -= 1
                 break
-            if player.lives == 0:
+            if player.lives <= 0:
                 alive = False
+                player.lives = 0
                 player.vY = 0
                 player.vX = 0
                 game_over_text()
@@ -191,6 +215,7 @@ def main():
             
         SCREEN.blit(player.pImg, (player.x,player.y))
         showScore(score.x, score.y)
+        showLives(1120,16)
        
         #Update display when there is a change
         pygame.display.update()
