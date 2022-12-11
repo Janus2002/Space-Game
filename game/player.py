@@ -3,9 +3,9 @@ import pygame
 class Player:
     pImg = pygame.image.load("Data/images/battleship.png")
     pRect = pImg.get_rect()
-    X = 80
-    Y = 328
+    x = 80
+    y = 328
     pRect = pImg.get_rect()
-    VY = 0
-    VX = 0
-   
+    vY = 0
+    vX = 0
+    lives = 3
