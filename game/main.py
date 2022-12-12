@@ -122,11 +122,15 @@ def main():
             if not alive:
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_r:
+                        #Reset all values
                         alive = True
                         player.x = 80
                         player.y= 328
                         player.lives = 5
                         score.score = 0
+                        player.pSpeed = 7.5
+                        enemy.speed = 5
+                        rocket.vX = 15
                         for i in range(numOfEnemies):
                             enemy.x[i] = rd.randint(720,1100)
                             enemy.y[i] = rd.randint(0,654)
@@ -184,8 +188,8 @@ def main():
             #Game over
             if enemy.x[i] < 120:
                 for j in range(numOfEnemies):
-                    enemy.x[j] = -300
-                    enemy.y[j] = -300
+                    enemy.x[j] = rd.randint(600,1100)
+                    enemy.y[j] = rd.randint(0,654)
                     enemy.eRect[j].x = enemy.x[j]
                     enemy.eRect[j].y = enemy.y[j]
                 player.lives -= 1
