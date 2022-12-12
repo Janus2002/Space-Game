@@ -131,6 +131,7 @@ def main():
                         player.pSpeed = 7.5
                         enemy.speed = 5
                         rocket.vX = 15
+                        scroll = 5
                         for i in range(numOfEnemies):
                             enemy.x[i] = rd.randint(720,1100)
                             enemy.y[i] = rd.randint(0,654)
