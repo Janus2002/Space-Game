@@ -264,7 +264,6 @@ def main():
         pygame.display.update()
 
     #Quit the game after closing
-    pygame.quit()
 
 if __name__ == "__main__":
     main()
